@@ -29,7 +29,7 @@ logs:
         existingClaim: airflowlogs-pvc
         accessMode: ReadWriteMany
         size: 5Gi        
-dag:
+dags:
     path: /opt/airflow/dags
     persistance:
         enabled: false
