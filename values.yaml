@@ -1,0 +1,35 @@
+airflow:
+    executor: KubernetesExecutor
+
+    config:
+        AIRFLOW__CORE__LOAD_EXAMPLES: "True"
+        ## Disable noisy "Handling signal: ttou" Gunicorn log messages
+        GUNICORN_CMD_ARGS: "--log-level WARNING"
+        AIRFLOW__KUBERNETES__GIT_REPO: "https://github.com/ckevinhill/airflow-kubernetes-example-dags.git"
+        AIRFLOW__KUBERNETES__GIT_BRANCH: "master"
+        AIRFLOW__KUBERNETES__GIT_DAGS_FOLDER_MOUNT_POINT: "/opt/airflow/dags"
+
+
+dag:
+    git:
+        url: https://github.com/ckevinhill/airflow-kubernetes-example-dags.git
+        ref: master
+        gitSync:
+            enabled: true
+            refreshTime: 120
+        mountPath: "/opt/airflow/dags"
+
+web:
+    ## configs for the Service of the web Pods
+    ##
+    service:
+        type: NodePort
+        
+workers:
+    enabled: false
+
+flower:
+    enabled: false
+
+redis:
+    enabled: false
