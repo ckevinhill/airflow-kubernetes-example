@@ -2,21 +2,44 @@ airflow:
     executor: KubernetesExecutor
 
     config:
-        AIRFLOW__CORE__LOAD_EXAMPLES: "True"
-        ## Disable noisy "Handling signal: ttou" Gunicorn log messages
-        GUNICORN_CMD_ARGS: "--log-level WARNING"
+        AIRFLOW__KUBERNETES__WORKER_CONTAINER_REPOSITORY: "apache/airflow"
+        AIRFLOW__KUBERNETES__WORKER_CONTAINER_TAG: "1.10.10-python3.6"
+        AIRFLOW__KUBERNETES__WORKER_CONTAINER_IMAGE_PULL_POLICY: "IfNotPresent"
+        AIRFLOW__KUBERNETES__WORKER_PODS_CREATION_BATCH_SIZE: "10"
+        AIRFLOW__KUBERNETES__LOGS_VOLUME_CLAIM: "airflowlogs-pvc"
         AIRFLOW__KUBERNETES__GIT_REPO: "https://github.com/ckevinhill/airflow-kubernetes-example-dags.git"
         AIRFLOW__KUBERNETES__GIT_BRANCH: "master"
         AIRFLOW__KUBERNETES__GIT_DAGS_FOLDER_MOUNT_POINT: "/opt/airflow/dags"
+        #AIRFLOW__KUBERNETES__DAGS_VOLUME_SUBPATH: "repo/"
+        AIRFLOW__KUBERNETES__NAMESPACE: "airflow"
+        AIRFLOW__KUBERNETES__DELETE_WORKER_PODS: "True"
+        AIRFLOW__KUBERNETES__RUN_AS_USER: "50000"
+        AIRFLOW__CORE__LOAD_EXAMPLES: "False"
+        AIRFLOW__SCHEDULER__DAG_DIR_LIST_INTERVAL: "60"
+        AIRFLOW__KUBERNETES__WORKER_SERVICE_ACCOUNT_NAME: "airflow"
 
+serviceAccount:
+    create: true
+    name: airflow
 
+logs:
+    path: /opt/airflow/logs
+    persistence:
+        enabled: true
+        existingClaim: airflowlogs-pvc
+        accessMode: ReadWriteMany
+        size: 5Gi        
 dag:
+    path: /opt/airflow/dags
+    persistance:
+        enabled: false
+
     git:
-        url: https://github.com/ckevinhill/airflow-kubernetes-example-dags.git
-        ref: master
+        url: "https://github.com/ckevinhill/airflow-kubernetes-example-dags.git"
+        ref: "master"
         gitSync:
             enabled: true
-            refreshTime: 120
+            refreshTime: 60
         mountPath: "/opt/airflow/dags"
 
 web:
@@ -33,3 +56,8 @@ flower:
 
 redis:
     enabled: false
+
+postgresql:
+    enabled: true
+    persistence:
+        enabled: false
