@@ -1,0 +1,20 @@
+dags:
+    path: /opt/airflow/dags
+    persistance:
+        enabled: false
+
+    git:
+        url: "https://github.com/ckevinhill/airflow-kubernetes-example-dags.git"
+        ref: "master"
+        gitSync:
+            enabled: true
+            refreshTime: 60
+        mountPath: "/opt/airflow/dags"
+
+serviceAccount:
+    create: true
+    name: airflow-sa
+
+postgresql:
+    persistence:
+        enabled: false
